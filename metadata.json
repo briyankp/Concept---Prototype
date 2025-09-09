@@ -1,0 +1,5 @@
+{
+  "name": "Spice Money Bill Pay Prototype",
+  "description": "A mobile app prototype for Spice Money's enhanced Bill Pay feature with UPMS integration. This prototype showcases customer registration, management, bill reminders, and loyalty points within the Spice Money design language.",
+  "requestFramePermissions": []
+}
