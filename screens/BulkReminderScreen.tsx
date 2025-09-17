@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import Header from '../components/Header';
-import { SAMPLE_CUSTOMERS, SAMPLE_BILLS } from '../constants';
+import { SAMPLE_CUSTOMERS, SAMPLE_BILLS, ADHIKARI_DETAILS } from '../constants';
 import { Customer, Bill, BillStatus } from '../types';
 import { useNavigation } from '../App';
 import { format, differenceInDays } from 'date-fns';
@@ -14,19 +13,31 @@ const BulkReminderScreen: React.FC = () => {
   const { goBack } = useNavigation();
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [remindersSent, setRemindersSent] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const customersWithDueBills = useMemo(() => {
     const dueCustomers: CustomerWithBill[] = [];
+    const customerBillsMap = new Map<string, Bill>();
+
+    // Get the soonest due bill for each customer
     SAMPLE_BILLS.forEach(bill => {
       if (bill.status === BillStatus.Due || bill.status === BillStatus.Overdue) {
-        const customer = SAMPLE_CUSTOMERS.find(c => c.id === bill.customerId);
-        if (customer) {
-          dueCustomers.push({ ...customer, bill });
+        if (!customerBillsMap.has(bill.customerId) || customerBillsMap.get(bill.customerId)!.dueDate > bill.dueDate) {
+          customerBillsMap.set(bill.customerId, bill);
         }
       }
     });
+
+    customerBillsMap.forEach((bill, customerId) => {
+        const customer = SAMPLE_CUSTOMERS.find(c => c.id === customerId);
+        if (customer) {
+            dueCustomers.push({ ...customer, bill });
+        }
+    });
+
     return dueCustomers.sort((a,b) => a.bill.dueDate.getTime() - b.bill.dueDate.getTime());
   }, []);
+
 
   const handleSelect = (customerId: string) => {
     setSelectedCustomers(prev => 
@@ -73,11 +84,12 @@ const BulkReminderScreen: React.FC = () => {
           <div className="flex items-center">
             <input
               type="checkbox"
-              checked={selectedCustomers.length === customersWithDueBills.length}
+              id="select-all-checkbox"
+              checked={selectedCustomers.length === customersWithDueBills.length && customersWithDueBills.length > 0}
               onChange={handleSelectAll}
               className="h-5 w-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
             />
-            <label className="ml-3 text-gray-700 font-semibold">
+            <label htmlFor="select-all-checkbox" className="ml-3 text-gray-700 font-semibold cursor-pointer">
               {selectedCustomers.length > 0 ? `${selectedCustomers.length} selected` : 'Select All'}
             </label>
           </div>
@@ -95,13 +107,32 @@ const BulkReminderScreen: React.FC = () => {
       </div>
       <div className="p-4 bg-white border-t">
         <button
-          onClick={handleSendReminders}
+          onClick={() => setShowConfirmation(true)}
           disabled={selectedCustomers.length === 0}
           className="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-lg shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          Send Reminder to All ({selectedCustomers.length})
+          Send Reminder to ({selectedCustomers.length})
         </button>
       </div>
+
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 m-4 max-w-sm w-full shadow-xl">
+                <h2 className="text-xl font-bold mb-2 text-gray-800">Confirm Reminders</h2>
+                <p className="text-gray-600 mb-4">You are about to send an SMS reminder to {selectedCustomers.length} selected customer(s).</p>
+                <div className="bg-gray-100 p-3 rounded-lg border border-gray-200 mb-6">
+                    <p className="text-sm font-semibold text-gray-800 mb-1">Message Preview:</p>
+                    <p className="text-sm text-gray-600">
+                        "Dear Customer, you have a pending bill payment. Please visit your nearest Spice Money Adhikari to pay. Adhikari: {ADHIKARI_DETAILS.name}, Ph: {ADHIKARI_DETAILS.phone}, Address: {ADHIKARI_DETAILS.address}."
+                    </p>
+                </div>
+                <div className="flex justify-end space-x-3">
+                    <button onClick={() => setShowConfirmation(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold">Cancel</button>
+                    <button onClick={() => { setShowConfirmation(false); handleSendReminders(); }} className="px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold">Confirm & Send</button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -112,7 +143,7 @@ const ReminderCard: React.FC<{ customer: Customer; bill: Bill; isSelected: boole
     const isDueSoon = daysUntilDue <= 3 && !isOverdue;
 
   return (
-    <div onClick={() => onSelect(customer.id)} className={`bg-white p-4 rounded-lg shadow-md mb-3 flex items-start cursor-pointer border-2 ${isSelected ? 'border-orange-500' : 'border-transparent'}`}>
+    <div onClick={() => onSelect(customer.id)} className={`bg-white p-4 rounded-lg shadow-md mb-3 flex items-start cursor-pointer border-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-transparent'}`}>
       <input
         type="checkbox"
         checked={isSelected}

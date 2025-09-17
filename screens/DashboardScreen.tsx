@@ -35,8 +35,8 @@ const DashboardScreen: React.FC = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 text-center mb-6">
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <p className="text-sm text-gray-500">Customers Saved</p>
-            <p className="text-xl font-bold text-green-600">₹2,450</p>
+            <p className="text-sm text-gray-500">Customers Registered</p>
+            <p className="text-xl font-bold text-gray-800">2</p>
             <p className="text-xs text-gray-400">this month</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md">
@@ -52,7 +52,7 @@ const DashboardScreen: React.FC = () => {
           <div className="flex items-center justify-between text-gray-600 mb-4">
             <div>
               <p className="text-2xl font-bold">{SAMPLE_CUSTOMERS.length}</p>
-              <p className="text-sm">Total Registered</p>
+              <p className="text-sm">Lifetime Registered</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold text-red-500">{upcomingBills.length}</p>

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import Header from '../components/Header';
 import { SAMPLE_CUSTOMERS, SAMPLE_BILLS } from '../constants';
@@ -21,6 +20,9 @@ const CustomerCard: React.FC<{ customer: Customer; nextBillDue: Date | null }> =
     } else if (daysUntilDue === 0) {
       dueDateText = 'Due today';
       dueDateColor = 'text-red-600 font-bold';
+    } else if (daysUntilDue === 1) {
+      dueDateText = `Due tomorrow`;
+      dueDateColor = 'text-red-500 font-semibold';
     } else if (daysUntilDue <= 3) {
       dueDateText = `Due in ${daysUntilDue} days`;
       dueDateColor = 'text-red-500 font-semibold';

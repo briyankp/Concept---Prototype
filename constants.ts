@@ -1,4 +1,3 @@
-
 import { Customer, Bill, BillType, BillStatus } from './types';
 
 export const SAMPLE_CUSTOMERS: Customer[] = [
@@ -9,6 +8,12 @@ export const SAMPLE_CUSTOMERS: Customer[] = [
   { id: '5', name: 'Rajesh Yadav', phone: '9876543214', loyaltyPoints: 80 },
   { id: '6', name: 'Anita Verma', phone: '9876543215', loyaltyPoints: 150 },
 ];
+
+export const ADHIKARI_DETAILS = {
+  name: 'Anil Kumar',
+  phone: '9988776655',
+  address: '123 Spice Point, Main Market, Noida'
+};
 
 const today = new Date();
 export const SAMPLE_BILLS: Bill[] = [
